@@ -1,10 +1,23 @@
 ############################################################
 # Dockerfile: CentOS6 & Privoxy
 ############################################################
-FROM carbonsphere/dock-centos6-epel-base:v1
+FROM centos:latest
 
-MAINTAINER CarbonSphere <CarbonSphere@gmail.com>
+MAINTAINER swmacdonald
 
+# Set environment variable
+ENV HOME 						/root
+ENV TERM 						xterm
+ENV LANG 						en_US.UTF-8
+ENV LC_ALL						en_US.UTF-8
+
+# Install any updates since intial build
+RUN yum -y update && yum clean all
+
+# Install epel release
+RUN yum -y install epel-release; yum -y clean all
+
+# Install privoxy
 RUN yum -y install privoxy wget; yum -y clean all
 
 ADD run.sh /usr/local/bin/run.sh

@@ -1,5 +1,12 @@
-Author  : CarbonSphere <br>
-Email   : carbonsphere@gmail.com<br>
+Forked from     :https://github.com/carbonsphere/dock-privoxy 
+Orginal Author  : CarbonSphere <br>
+Email           : carbonsphere@gmail.com<br>
+
+Modified by     : swmacdonald
+Changes:
+Derived from base Centos:latest
+merged orginal dependecies from https://github.com/carbonsphere/dock-centos6-epel-base
+
 
 # Privoxy
 
@@ -9,7 +16,7 @@ Uses AdBlock's blocking list.
 
 # How to use:
 
-	docker run -d -p 8118:8118 --name privoxy carbonsphere/dock-privoxy
+	docker run -d -p 8118:8118 --name privoxy swmacdonald/dock-privoxy
 
 Set your browser to http proxy to DOCKER_HOST_IP port 8118
 
