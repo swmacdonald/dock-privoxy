@@ -1,11 +1,11 @@
-Forked from     :https://github.com/carbonsphere/dock-privoxy 
+Forked from     :https://github.com/carbonsphere/dock-privoxy <br>
 Orginal Author  : CarbonSphere <br>
 Email           : carbonsphere@gmail.com<br>
 
-Modified by     : swmacdonald
-Changes:
-Derived from base Centos:latest
-merged orginal dependecies from https://github.com/carbonsphere/dock-centos6-epel-base
+Modified by     : swmacdonald<br>
+Changes: <br>
+Derived from base Centos:latest <br>
+merged orginal dependecies from https://github.com/carbonsphere/dock-centos6-epel-base <br>
 
 
 # Privoxy
