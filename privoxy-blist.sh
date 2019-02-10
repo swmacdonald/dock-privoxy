@@ -9,9 +9,19 @@
 #
 ##################
 #
-#                  Sumary: 
+#                  Sumary:
 #                   This script downloads, converts and installs
 #                   AdblockPlus lists into Privoxy
+#
+######################################################################
+
+######################################################################
+#
+#                 TODO:
+#                  - implement:
+#                     domain-based filter
+#                     id->class combination
+#                     class->id combination
 #
 ######################################################################
 
@@ -69,6 +79,7 @@ function main()
     file=${TMPDIR}/$(basename ${url})
     actionfile=${file%\.*}.script.action
     filterfile=${file%\.*}.script.filter
+    basefilter=$(basename ${filterfile})
     list=$(basename ${file%\.*})
 
     # download list
@@ -126,10 +137,10 @@ function main()
     sed '/^@@.*/!d;s/^@@//g;/\$.*image.*/!d;s/\$.*image.*//g;/#/d;s/\./\\./g;s/\?/\\?/g;s/\*/.*/g;s/(/\\(/g;s/)/\\)/g;s/\[/\\[/g;s/\]/\\]/g;s/\^/[\/\&:\?=_]/g;s/^||/\./g;s/^|/^/g;s/|$/\$/g;/|/d' ${file} >> ${actionfile}
     debug "... created and added image handler ..." 1
     debug "... created actionfile for ${list}." 1
-    
+
     # install Privoxy actionsfile
     install -o ${PRIVOXY_USER} -g ${PRIVOXY_GROUP} ${VERBOSE} ${actionfile} ${PRIVOXY_DIR}
-    if [ "$(grep $(basename ${actionfile}) ${PRIVOXY_CONF})" == "" ] 
+    if [ "$(grep $(basename ${actionfile}) ${PRIVOXY_CONF})" == "" ]
     then
       debug "\nModifying ${PRIVOXY_CONF} ..." 0
       sed "s/^actionsfile user\.action/actionsfile $(basename ${actionfile})\nactionsfile user.action/" ${PRIVOXY_CONF} > ${TMPDIR}/config
@@ -137,11 +148,15 @@ function main()
       debug "Installing new config ..." 0
       install -o ${PRIVOXY_USER} -g ${PRIVOXY_GROUP} ${VERBOSE} ${TMPDIR}/config ${PRIVOXY_CONF}
       debug "... installation done\n" 0
-    fi	
+    fi
 
     # install Privoxy filterfile
     install -o ${PRIVOXY_USER} -g ${PRIVOXY_GROUP} ${VERBOSE} ${filterfile} ${PRIVOXY_DIR}
-    if [ "$(grep $(basename ${filterfile}) ${PRIVOXY_CONF})" == "" ]
+    echo "---------"
+    echo grep $basefilter ${PRIVOXY_CONF}
+    grep $basefilter ${PRIVOXY_CONF}
+    echo "---------"
+    if ( grep $basefilter ${PRIVOXY_CONF} );
     then
       debug "\nModifying ${PRIVOXY_CONF} ..." 0
       sed "s/^\(#*\)filterfile user\.filter/filterfile $(basename ${filterfile})\n\1filterfile user.filter/" ${PRIVOXY_CONF} > ${TMPDIR}/config
@@ -149,7 +164,7 @@ function main()
       debug "Installing new config ..." 0
       install -o ${PRIVOXY_USER} -g ${PRIVOXY_GROUP} ${VERBOSE} ${TMPDIR}/config ${PRIVOXY_CONF}
       debug "... installation done\n" 0
-    fi	
+    fi
 
     debug "... ${url} installed successfully.\n" 0
   done
@@ -159,20 +174,25 @@ if [[ ! -f "${SCRIPTCONF}" ]]
 then
   echo "No config found in ${SCRIPTCONF}. Creating default one and exiting because you might have to adjust it."
   echo "# Config of privoxy-blocklist
+
 # array of URL for AdblockPlus lists
 #  for more sources just add it within the round brackets
 URLS=(\"https://easylist-downloads.adblockplus.org/easylistgermany.txt\" \"http://adblockplus.mozdev.org/easylist/easylist.txt\")
+
 # config for privoxy initscript providing PRIVOXY_CONF, PRIVOXY_USER and PRIVOXY_GROUP
 INIT_CONF=\"/etc/conf.d/privoxy\"
+
 # !! if the config above doesn't exist set these variables here !!
 # !! These values will be overwritten by INIT_CONF !!
 #PRIVOXY_USER=\"privoxy\"
 #PRIVOXY_GROUP=\"privoxy\"
 #PRIVOXY_CONF=\"/etc/privoxy/config\"
+
 # name for lock file (default: script name)
 TMPNAME=\"\$(basename \${0})\"
 # directory for temporary files
 TMPDIR=\"/tmp/\${TMPNAME}\"
+
 # Debug-level
 #   -1 = quiet
 #    0 = normal
@@ -210,7 +230,7 @@ if [ -f "${TMPDIR}/${TMPNAME}.lock" ]
 then
   read -r fpid <"${TMPDIR}/${TMPNAME}.lock"
   ppid=$(pidof -o %PPID -x "${TMPNAME}")
-  if [[ $fpid = "${ppid}" ]] 
+  if [[ $fpid = "${ppid}" ]]
   then
     echo "An Instance of ${TMPNAME} is already running. Exit" && exit 1
   else
@@ -226,7 +246,7 @@ echo $$ > "${TMPDIR}/${TMPNAME}.lock"
 # loop for options
 while getopts ":hrqv:" opt
 do
-  case "${opt}" in 
+  case "${opt}" in
     "v")
       DBG="${OPTARG}"
       VERBOSE="-v"
@@ -260,3 +280,4 @@ main
 trap - INT TERM EXIT
 [ ${DBG} -lt 3 ] && rm -r ${VERBOSE} "${TMPDIR}"
 exit 0
+
