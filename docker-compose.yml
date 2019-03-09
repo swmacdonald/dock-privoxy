@@ -1,0 +1,11 @@
+version: 3
+services:
+    dock-privoxy:
+        ports:
+            - '8118:8118'
+        restart: unless-stopped
+        dns:
+            - 172.17.0.1
+        container_name: privoxy
+        image: 'dock-privoxy:0.6'
+
